@@ -34,7 +34,7 @@ public class GameServiceImpl implements GameService {
 			.map(cellBean -> mapper.map(cellBean, Cell.class))
 			.collect(Collectors.toList());
 
-		Game newGame = gameRepository.save(new Game(request.getColumnCount(), request.getRowCount(), request.getMineCount(), GameStatus.NEW, newGameCells));
+		Game newGame = gameRepository.save(createNewGame(request, newGameCells));
 
 		log.info("Saved new game with id={}", newGame.getId());
 
@@ -61,5 +61,9 @@ public class GameServiceImpl implements GameService {
 	@Override
 	public GameBean resumeGame(Long gameId) {
 		return null;
+	}
+
+	private Game createNewGame(NewGameRequest request, List<Cell> newGameCells) {
+		return new Game(request.getColumnCount(), request.getRowCount(), request.getMineCount(), GameStatus.NEW, newGameCells);
 	}
 }
