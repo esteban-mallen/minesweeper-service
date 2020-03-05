@@ -3,7 +3,7 @@ package com.stvmallen.minesweeper.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import com.stvmallen.minesweeper.types.GameStatus;
 import ma.glasnost.orika.MapperFacade;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 public class GameServiceImpl implements GameService {
 	private final MapperFacade mapper;
