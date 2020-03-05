@@ -186,7 +186,7 @@ public class GameServiceImplTest {
 		Game game = mock(Game.class);
 		GameBean gameBean = mock(GameBean.class);
 
-		when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
+		when(gameRepository.findByIdAndStatusIn(1L, GameStatus.STARTED, GameStatus.NEW)).thenReturn(Optional.of(game));
 		when(gameRepository.save(game)).thenReturn(game);
 		when(mapper.map(game, GameBean.class)).thenReturn(gameBean);
 		when(mapper.map(gameBean, Game.class)).thenReturn(game);
@@ -203,11 +203,11 @@ public class GameServiceImplTest {
 	public void testMarkCell_noGameFound() {
 		Game game = mock(Game.class);
 
-		when(gameRepository.findById(1L)).thenReturn(Optional.empty());
+		when(gameRepository.findByIdAndStatusIn(1L, GameStatus.STARTED, GameStatus.NEW)).thenReturn(Optional.empty());
 
 		assertThatThrownBy(() -> gameService.markCell(1L, 1L))
 			.isInstanceOf(GameNotFoundException.class)
-			.hasMessage("Game not found with gameId=1");
+			.hasMessage("Active game not found with gameId=1");
 
 		verify(gameRepository, never()).save(game);
 	}
@@ -218,7 +218,7 @@ public class GameServiceImplTest {
 		GameBean gameBean = mock(GameBean.class);
 		CellBean cellBean = mock(CellBean.class);
 
-		when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
+		when(gameRepository.findByIdAndStatusIn(1L, GameStatus.STARTED, GameStatus.NEW)).thenReturn(Optional.of(game));
 		when(gameRepository.save(game)).thenReturn(game);
 		when(mapper.map(game, GameBean.class)).thenReturn(gameBean);
 		when(mapper.map(gameBean, Game.class)).thenReturn(game);
@@ -241,7 +241,7 @@ public class GameServiceImplTest {
 		GameBean gameBean = mock(GameBean.class);
 		CellBean cellBean = mock(CellBean.class);
 
-		when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
+		when(gameRepository.findByIdAndStatusIn(1L, GameStatus.STARTED, GameStatus.NEW)).thenReturn(Optional.of(game));
 		when(gameRepository.save(game)).thenReturn(game);
 		when(mapper.map(game, GameBean.class)).thenReturn(gameBean);
 		when(mapper.map(gameBean, Game.class)).thenReturn(game);

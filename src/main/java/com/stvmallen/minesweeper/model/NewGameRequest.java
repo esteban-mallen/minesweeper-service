@@ -15,12 +15,12 @@ import lombok.NoArgsConstructor;
 public class NewGameRequest implements Serializable {
 	private static final long serialVersionUID = -5829690699166513526L;
 
-	@NotNull
-	@Min(1)
+	@NotNull(message = "Row count can't be null")
+	@Min(value = 1, message = "Row count must be greater than 0")
 	private Long rowCount;
-	@NotNull
-	@Min(1)
+	@NotNull(message = "Column count can't be null")
+	@Min(value = 1, message = "Column count must be greater than 0")
 	private Long columnCount;
-	@NotNull
+	@NotNull(message = "Mine count can't be null")
 	private Long mineCount;
 }

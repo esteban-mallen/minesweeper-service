@@ -53,7 +53,7 @@ public class GameServiceImpl implements GameService {
 
 	@Override
 	public GameBean revealCell(Long gameId, Long cellId) {
-		GameBean gameBean = findGame(gameId);
+		GameBean gameBean = findActiveGame(gameId);
 		gameBean.setStatus(GameStatus.STARTED);
 
 		try {
@@ -82,7 +82,7 @@ public class GameServiceImpl implements GameService {
 
 	@Override
 	public GameBean markCell(Long gameId, Long cellId) {
-		GameBean gameBean = findGame(gameId);
+		GameBean gameBean = findActiveGame(gameId);
 		gameBean.setStatus(GameStatus.STARTED);
 
 		cellService.markCell(gameBean, cellId);
@@ -92,7 +92,7 @@ public class GameServiceImpl implements GameService {
 
 	@Override
 	public GameBean flagCell(Long gameId, Long cellId) {
-		GameBean gameBean = findGame(gameId);
+		GameBean gameBean = findActiveGame(gameId);
 		gameBean.setStatus(GameStatus.STARTED);
 
 		cellService.flagCell(gameBean, cellId);
@@ -123,5 +123,11 @@ public class GameServiceImpl implements GameService {
 			.allMatch(CellBean::isMine)) {
 			gameBean.setStatus(GameStatus.FINISHED); //Game won
 		}
+	}
+
+	private GameBean findActiveGame(Long gameId) {
+		return gameRepository.findByIdAndStatusIn(gameId, GameStatus.STARTED, GameStatus.NEW)
+			.map(game -> mapper.map(game, GameBean.class))
+			.orElseThrow(() -> new GameNotFoundException("Active game not found with gameId=" + gameId));
 	}
 }
