@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'org.springframework.boot' version '2.2.5.RELEASE'
 }
 
 group 'com.stvmallen'
@@ -55,6 +56,10 @@ dependencies {
     compile group: 'io.springfox', name: 'springfox-swagger2', version: "${swaggerVersion}"
     compile group: 'io.springfox', name: 'springfox-swagger-ui', version: "${swaggerVersion}"
 
+    // JAX-B dependencies for JDK 9+
+    implementation "jakarta.xml.bind:jakarta.xml.bind-api:2.3.2"
+    implementation "org.glassfish.jaxb:jaxb-runtime:2.3.2"
+
     testCompile group: 'org.testng', name: 'testng', version: "$testNGVersion"
     testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: "${springBootVersion}"
     testCompile group: 'org.assertj', name: 'assertj-core', version: "$assertJVersion"
@@ -62,4 +67,11 @@ dependencies {
 
 test {
     useTestNG()
+}
+springBoot {
+    buildInfo()
+}
+
+task stage(dependsOn: 'assemble') {
+
 }
