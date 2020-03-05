@@ -3,6 +3,8 @@ package com.stvmallen.minesweeper.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -22,6 +24,7 @@ import com.stvmallen.minesweeper.model.CellBean;
 import com.stvmallen.minesweeper.model.GameBean;
 import com.stvmallen.minesweeper.model.NewGameRequest;
 import com.stvmallen.minesweeper.repository.GameRepository;
+import com.stvmallen.minesweeper.types.GameStatus;
 import ma.glasnost.orika.MapperFacade;
 
 public class GameServiceImplTest {
@@ -86,5 +89,93 @@ public class GameServiceImplTest {
 		GameBean foundGame = gameService.findGame(1L);
 
 		assertThat(foundGame).isSameAs(gameBean);
+	}
+
+	@Test
+	public void testPauseGame() {
+		Game game = mock(Game.class);
+		GameBean gameBean = mock(GameBean.class);
+
+		when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
+		when(game.getStatus()).thenReturn(GameStatus.STARTED);
+		when(gameRepository.save(gameArgumentCaptor.capture())).thenReturn(game);
+		when(mapper.map(game, GameBean.class)).thenReturn(gameBean);
+
+		gameService.pauseGame(1L);
+
+		verify(game).setStatus(GameStatus.PAUSED);
+		verify(gameRepository).save(game);
+	}
+
+	@Test
+	public void testPauseGame_gameNotFound() {
+		Game game = mock(Game.class);
+
+		when(gameRepository.findById(1L)).thenReturn(Optional.empty());
+
+		assertThatThrownBy(() -> gameService.pauseGame(1L))
+			.isInstanceOf(GameNotFoundException.class)
+			.hasMessage("Active game not found with gameId=1");
+
+		verify(gameRepository, never()).save(game);
+	}
+
+	@Test
+	public void testPauseGame_gameFinished() {
+		Game game = mock(Game.class);
+
+		when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
+		when(game.getStatus()).thenReturn(GameStatus.FINISHED);
+		when(gameRepository.save(gameArgumentCaptor.capture())).thenReturn(game);
+
+		assertThatThrownBy(() -> gameService.pauseGame(1L))
+			.isInstanceOf(GameNotFoundException.class)
+			.hasMessage("Active game not found with gameId=1");
+
+		verify(gameRepository, never()).save(game);
+	}
+
+	@Test
+	public void testResumeGame() {
+		Game game = mock(Game.class);
+		GameBean gameBean = mock(GameBean.class);
+
+		when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
+		when(game.getStatus()).thenReturn(GameStatus.PAUSED);
+		when(gameRepository.save(gameArgumentCaptor.capture())).thenReturn(game);
+		when(mapper.map(game, GameBean.class)).thenReturn(gameBean);
+
+		gameService.resumeGame(1L);
+
+		verify(game).setStatus(GameStatus.STARTED);
+		verify(gameRepository).save(game);
+	}
+
+	@Test
+	public void testResumeGame_gameNotFound() {
+		Game game = mock(Game.class);
+
+		when(gameRepository.findById(1L)).thenReturn(Optional.empty());
+
+		assertThatThrownBy(() -> gameService.resumeGame(1L))
+			.isInstanceOf(GameNotFoundException.class)
+			.hasMessage("Active game not found with gameId=1");
+
+		verify(gameRepository, never()).save(game);
+	}
+
+	@Test
+	public void testResumeGame_gameFinished() {
+		Game game = mock(Game.class);
+
+		when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
+		when(game.getStatus()).thenReturn(GameStatus.FINISHED);
+		when(gameRepository.save(gameArgumentCaptor.capture())).thenReturn(game);
+
+		assertThatThrownBy(() -> gameService.resumeGame(1L))
+			.isInstanceOf(GameNotFoundException.class)
+			.hasMessage("Active game not found with gameId=1");
+
+		verify(gameRepository, never()).save(game);
 	}
 }

@@ -71,12 +71,13 @@ public class GameServiceImpl implements GameService {
 
 	private GameBean changeGameStatus(Long gameId, GameStatus status) {
 		return gameRepository.findById(gameId)
+			.filter(game -> game.getStatus() != GameStatus.FINISHED)
 			.map(game -> {
 				game.setStatus(status);
 				return game;
 			})
 			.map(gameRepository::save)
 			.map(game -> mapper.map(game, GameBean.class))
-			.orElseThrow(() -> new GameNotFoundException("Game not found with gameId=" + gameId));
+			.orElseThrow(() -> new GameNotFoundException("Active game not found with gameId=" + gameId));
 	}
 }
