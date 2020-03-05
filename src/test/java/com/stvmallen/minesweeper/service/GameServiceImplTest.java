@@ -2,6 +2,7 @@ package com.stvmallen.minesweeper.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -21,6 +22,7 @@ import com.google.common.collect.ImmutableList;
 import com.stvmallen.minesweeper.entity.Cell;
 import com.stvmallen.minesweeper.entity.Game;
 import com.stvmallen.minesweeper.exception.GameNotFoundException;
+import com.stvmallen.minesweeper.exception.MineExplodedException;
 import com.stvmallen.minesweeper.model.CellBean;
 import com.stvmallen.minesweeper.model.GameBean;
 import com.stvmallen.minesweeper.model.NewGameRequest;
@@ -256,5 +258,63 @@ public class GameServiceImplTest {
 		verify(gameBean).setStatus(GameStatus.STARTED);
 		verify(gameBean).setStatus(GameStatus.FINISHED);
 		verify(cellService).flagCell(gameBean, 1L);
+	}
+
+	@Test
+	public void testRevealCell() throws MineExplodedException {
+		Game game = mock(Game.class);
+		GameBean gameBean = mock(GameBean.class);
+		CellBean cellBean = mock(CellBean.class);
+
+		when(gameRepository.findByIdAndStatusIn(1L, GameStatus.STARTED, GameStatus.NEW)).thenReturn(Optional.of(game));
+		when(gameRepository.save(game)).thenReturn(game);
+		when(mapper.map(game, GameBean.class)).thenReturn(gameBean);
+		when(mapper.map(gameBean, Game.class)).thenReturn(game);
+		when(gameBean.getCells()).thenReturn(List.of(cellBean));
+
+		gameService.revealCell(1L, 1L);
+
+		verify(cellService).revealCell(gameBean, 1L);
+		verify(gameRepository).save(game);
+	}
+
+	@Test
+	public void testRevealCell_gameWon() throws MineExplodedException {
+		Game game = mock(Game.class);
+		GameBean gameBean = mock(GameBean.class);
+		CellBean cellBean = mock(CellBean.class);
+
+		when(gameRepository.findByIdAndStatusIn(1L, GameStatus.STARTED, GameStatus.NEW)).thenReturn(Optional.of(game));
+		when(gameRepository.save(game)).thenReturn(game);
+		when(mapper.map(game, GameBean.class)).thenReturn(gameBean);
+		when(mapper.map(gameBean, Game.class)).thenReturn(game);
+		when(gameBean.getCells()).thenReturn(List.of(cellBean));
+		when(cellBean.getCellStatus()).thenReturn(CellStatus.FLAGGED);
+		when(cellBean.isMine()).thenReturn(true);
+
+		gameService.revealCell(1L, 1L);
+
+		verify(cellService).revealCell(gameBean, 1L);
+		verify(gameBean).setStatus(GameStatus.FINISHED);
+		verify(gameRepository).save(game);
+	}
+
+	@Test
+	public void testRevealCell_mineExploded() throws MineExplodedException {
+		Game game = mock(Game.class);
+		GameBean gameBean = mock(GameBean.class);
+		CellBean cellBean = mock(CellBean.class);
+
+		when(gameRepository.findByIdAndStatusIn(1L, GameStatus.STARTED, GameStatus.NEW)).thenReturn(Optional.of(game));
+		when(gameRepository.save(game)).thenReturn(game);
+		when(mapper.map(game, GameBean.class)).thenReturn(gameBean);
+		when(mapper.map(gameBean, Game.class)).thenReturn(game);
+		when(gameBean.getCells()).thenReturn(List.of(cellBean));
+		doThrow(new MineExplodedException("Mine exploded!!")).when(cellService).revealCell(gameBean, 1L);
+
+		gameService.revealCell(1L, 1L);
+
+		verify(gameBean).setStatus(GameStatus.FINISHED);
+		verify(gameRepository).save(game);
 	}
 }
