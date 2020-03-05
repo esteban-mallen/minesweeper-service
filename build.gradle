@@ -1,0 +1,17 @@
+plugins {
+    id 'java'
+}
+
+group 'com.stvmallen'
+version '0.0.1-SNAPSHOT'
+
+sourceCompatibility = JavaVersion.VERSION_11
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+
+}
