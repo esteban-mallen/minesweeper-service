@@ -17,6 +17,7 @@ ext {
     orikaVersion = '1.9.0'
     assertJVersion = '3.15.0'
     guavaVersion = '28.2-jre'
+    swaggerVersion = '2.9.2'
 }
 
 repositories {
@@ -49,6 +50,10 @@ dependencies {
 
     //Guava
     compile group: 'com.google.guava', name: 'guava', version: "${guavaVersion}"
+
+    //Swagger
+    compile group: 'io.springfox', name: 'springfox-swagger2', version: "${swaggerVersion}"
+    compile group: 'io.springfox', name: 'springfox-swagger-ui', version: "${swaggerVersion}"
 
     testCompile group: 'org.testng', name: 'testng', version: "$testNGVersion"
     testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: "${springBootVersion}"
