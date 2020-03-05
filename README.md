@@ -16,6 +16,8 @@ SpringBoot microservice handling requests to play Minesweeper
 - By executing `./gradlew bootRun` in the root project directory
 ## Deployed instances
 - http://minesweeper-service.herokuapp.com
-## API docs:
+## API docs (and embedded REST client! :) ):
 - http://minesweeper-service.herokuapp.com/swagger-ui.html
+## TODO
+* Add user support
 
