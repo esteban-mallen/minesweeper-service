@@ -55,15 +55,28 @@ public class GameServiceImpl implements GameService {
 
 	@Override
 	public GameBean pauseGame(Long gameId) {
-		return null;
+		log.info("Pausing gameId={}", gameId);
+		return changeGameStatus(gameId, GameStatus.PAUSED);
 	}
 
 	@Override
 	public GameBean resumeGame(Long gameId) {
-		return null;
+		log.info("Resuming gameId={}", gameId);
+		return changeGameStatus(gameId, GameStatus.STARTED);
 	}
 
 	private Game createNewGame(NewGameRequest request, List<Cell> newGameCells) {
 		return new Game(request.getColumnCount(), request.getRowCount(), request.getMineCount(), GameStatus.NEW, newGameCells);
+	}
+
+	private GameBean changeGameStatus(Long gameId, GameStatus status) {
+		return gameRepository.findById(gameId)
+			.map(game -> {
+				game.setStatus(status);
+				return game;
+			})
+			.map(gameRepository::save)
+			.map(game -> mapper.map(game, GameBean.class))
+			.orElseThrow(() -> new GameNotFoundException("Game not found with gameId=" + gameId));
 	}
 }
