@@ -3,11 +3,13 @@
 SpringBoot microservice handling requests to play Minesweeper
 ## Stack
 - Java 11
-- SpringBoot 2.2   
-- Gradle
+- SpringBoot 2.2
+- JPA
+- MySQL (relational DB)
 - Flyway (db migration)
-- MySQL
-- TestNG
+- TestNG (test framework)
+- OrikaMapper (to convert entities to and from beans)
+- Gradle
 ## Build
 - By executing `./gradlew build` in the root project directory
 ## Run
