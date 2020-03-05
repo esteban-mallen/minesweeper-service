@@ -102,13 +102,13 @@ public class CellServiceImpl implements CellService {
 	}
 
 	private void changeCellStatus(GameBean gameBean, Long cellId, CellStatus cellStatus) {
-		CellBean cellToMark = gameBean.getCells()
+		CellBean cell = gameBean.getCells()
 			.stream()
 			.filter(cellBean -> cellBean.getId().equals(cellId))
 			.findFirst()
 			.orElseThrow(() -> new InvalidCellException(String.format("No cell with cellId=%s found for gameId=%s", cellId, gameBean.getId())));
 
-		cellToMark.setCellStatus(cellStatus);
+		cell.setCellStatus(cellStatus);
 	}
 
 	private void checkAdjacentCells(GameBean gameBean, CellBean cellToReveal) {
