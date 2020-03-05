@@ -24,4 +24,5 @@ public class CellBean implements Serializable {
 	private Long columnPosition;
 	private boolean isMine;
 	private CellStatus cellStatus;
+	private Long adjacentMineCount;
 }

@@ -31,5 +31,8 @@ public class Cell extends TimestampedEntity {
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "status", length = 10, nullable = false)
-	private CellStatus cellStatus;
+	private CellStatus cellStatus = CellStatus.HIDDEN;
+
+	@Column(name = "adjacent_mine_count", nullable = false)
+	private Long adjacentMineCount;
 }
