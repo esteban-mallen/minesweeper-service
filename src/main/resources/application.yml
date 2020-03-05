@@ -26,3 +26,6 @@ spring:
     clean-disabled: false
     clean-on-validation-error: true
     locations: classpath:/db/migration
+
+orika:
+  map-nulls: false
