@@ -7,6 +7,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.mockito.ArgumentCaptor;
@@ -24,6 +25,7 @@ import com.stvmallen.minesweeper.model.CellBean;
 import com.stvmallen.minesweeper.model.GameBean;
 import com.stvmallen.minesweeper.model.NewGameRequest;
 import com.stvmallen.minesweeper.repository.GameRepository;
+import com.stvmallen.minesweeper.types.CellStatus;
 import com.stvmallen.minesweeper.types.GameStatus;
 import ma.glasnost.orika.MapperFacade;
 
@@ -177,5 +179,82 @@ public class GameServiceImplTest {
 			.hasMessage("Active game not found with gameId=1");
 
 		verify(gameRepository, never()).save(game);
+	}
+
+	@Test
+	public void testMarkCell() {
+		Game game = mock(Game.class);
+		GameBean gameBean = mock(GameBean.class);
+
+		when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
+		when(gameRepository.save(game)).thenReturn(game);
+		when(mapper.map(game, GameBean.class)).thenReturn(gameBean);
+		when(mapper.map(gameBean, Game.class)).thenReturn(game);
+
+		GameBean returnedGame = gameService.markCell(1L, 1L);
+
+		assertThat(returnedGame).isSameAs(gameBean);
+
+		verify(gameBean).setStatus(GameStatus.STARTED);
+		verify(cellService).markCell(gameBean, 1L);
+	}
+
+	@Test
+	public void testMarkCell_noGameFound() {
+		Game game = mock(Game.class);
+
+		when(gameRepository.findById(1L)).thenReturn(Optional.empty());
+
+		assertThatThrownBy(() -> gameService.markCell(1L, 1L))
+			.isInstanceOf(GameNotFoundException.class)
+			.hasMessage("Game not found with gameId=1");
+
+		verify(gameRepository, never()).save(game);
+	}
+
+	@Test
+	public void testFlagCell() {
+		Game game = mock(Game.class);
+		GameBean gameBean = mock(GameBean.class);
+		CellBean cellBean = mock(CellBean.class);
+
+		when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
+		when(gameRepository.save(game)).thenReturn(game);
+		when(mapper.map(game, GameBean.class)).thenReturn(gameBean);
+		when(mapper.map(gameBean, Game.class)).thenReturn(game);
+		when(gameBean.getCells()).thenReturn(List.of(cellBean));
+		when(cellBean.getCellStatus()).thenReturn(CellStatus.FLAGGED);
+		when(cellBean.isMine()).thenReturn(false);
+
+		GameBean returnedGame = gameService.flagCell(1L, 1L);
+
+		assertThat(returnedGame).isSameAs(gameBean);
+
+		verify(gameBean).setStatus(GameStatus.STARTED);
+		verify(gameBean, never()).setStatus(GameStatus.FINISHED);
+		verify(cellService).flagCell(gameBean, 1L);
+	}
+
+	@Test
+	public void testFlagCell_gameWon() {
+		Game game = mock(Game.class);
+		GameBean gameBean = mock(GameBean.class);
+		CellBean cellBean = mock(CellBean.class);
+
+		when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
+		when(gameRepository.save(game)).thenReturn(game);
+		when(mapper.map(game, GameBean.class)).thenReturn(gameBean);
+		when(mapper.map(gameBean, Game.class)).thenReturn(game);
+		when(gameBean.getCells()).thenReturn(List.of(cellBean));
+		when(cellBean.getCellStatus()).thenReturn(CellStatus.FLAGGED);
+		when(cellBean.isMine()).thenReturn(true);
+
+		GameBean returnedGame = gameService.flagCell(1L, 1L);
+
+		assertThat(returnedGame).isSameAs(gameBean);
+
+		verify(gameBean).setStatus(GameStatus.STARTED);
+		verify(gameBean).setStatus(GameStatus.FINISHED);
+		verify(cellService).flagCell(gameBean, 1L);
 	}
 }

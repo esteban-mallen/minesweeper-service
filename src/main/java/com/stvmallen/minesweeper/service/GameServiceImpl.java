@@ -11,9 +11,12 @@ import org.springframework.stereotype.Service;
 import com.stvmallen.minesweeper.entity.Cell;
 import com.stvmallen.minesweeper.entity.Game;
 import com.stvmallen.minesweeper.exception.GameNotFoundException;
+import com.stvmallen.minesweeper.exception.MineExplodedException;
+import com.stvmallen.minesweeper.model.CellBean;
 import com.stvmallen.minesweeper.model.GameBean;
 import com.stvmallen.minesweeper.model.NewGameRequest;
 import com.stvmallen.minesweeper.repository.GameRepository;
+import com.stvmallen.minesweeper.types.CellStatus;
 import com.stvmallen.minesweeper.types.GameStatus;
 import ma.glasnost.orika.MapperFacade;
 
@@ -50,7 +53,19 @@ public class GameServiceImpl implements GameService {
 
 	@Override
 	public GameBean revealCell(Long gameId, Long cellId) {
-		return null;
+		GameBean gameBean = findGame(gameId);
+		gameBean.setStatus(GameStatus.STARTED);
+
+		try {
+			cellService.revealCell(gameBean, cellId);
+
+			checkGameStatus(gameBean);
+		} catch (MineExplodedException e) {
+			log.info("Revealed mine in cellId={} gameId={}. Marking game as finished.", cellId, gameId);
+			gameBean.setStatus(GameStatus.FINISHED);
+		}
+
+		return mapper.map(gameRepository.save(mapper.map(gameBean, Game.class)), GameBean.class);
 	}
 
 	@Override
@@ -63,6 +78,27 @@ public class GameServiceImpl implements GameService {
 	public GameBean resumeGame(Long gameId) {
 		log.info("Resuming gameId={}", gameId);
 		return changeGameStatus(gameId, GameStatus.STARTED);
+	}
+
+	@Override
+	public GameBean markCell(Long gameId, Long cellId) {
+		GameBean gameBean = findGame(gameId);
+		gameBean.setStatus(GameStatus.STARTED);
+
+		cellService.markCell(gameBean, cellId);
+
+		return mapper.map(gameRepository.save(mapper.map(gameBean, Game.class)), GameBean.class);
+	}
+
+	@Override
+	public GameBean flagCell(Long gameId, Long cellId) {
+		GameBean gameBean = findGame(gameId);
+		gameBean.setStatus(GameStatus.STARTED);
+
+		cellService.flagCell(gameBean, cellId);
+		checkGameStatus(gameBean);
+
+		return mapper.map(gameRepository.save(mapper.map(gameBean, Game.class)), GameBean.class);
 	}
 
 	private Game createNewGame(NewGameRequest request, List<Cell> newGameCells) {
@@ -79,5 +115,13 @@ public class GameServiceImpl implements GameService {
 			.map(gameRepository::save)
 			.map(game -> mapper.map(game, GameBean.class))
 			.orElseThrow(() -> new GameNotFoundException("Active game not found with gameId=" + gameId));
+	}
+
+	private void checkGameStatus(GameBean gameBean) {
+		if (gameBean.getCells().stream()
+			.filter(cellBean -> CellStatus.HIDDEN == cellBean.getCellStatus() || CellStatus.FLAGGED == cellBean.getCellStatus())
+			.allMatch(CellBean::isMine)) {
+			gameBean.setStatus(GameStatus.FINISHED); //Game won
+		}
 	}
 }

@@ -44,4 +44,22 @@ public interface GameService {
 	 * @return the game bean
 	 */
 	GameBean resumeGame(Long gameId);
+
+	/**
+	 * Marks a given cell as possible mine
+	 *
+	 * @param gameId the game id
+	 * @param cellId the cell id to flag
+	 * @return the game bean
+	 */
+	GameBean markCell(Long gameId, Long cellId);
+
+	/**
+	 * Flags a given cell as mine
+	 *
+	 * @param gameId the game id
+	 * @param cellId the cell id to flag
+	 * @return the game bean
+	 */
+	GameBean flagCell(Long gameId, Long cellId);
 }
