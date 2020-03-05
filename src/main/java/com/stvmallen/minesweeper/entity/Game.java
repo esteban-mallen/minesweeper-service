@@ -29,7 +29,7 @@ public class Game extends TimestampedEntity {
 	@Column(name = "column_count", nullable = false)
 	private Long columnCount;
 
-	@Column(name = "rows_count", nullable = false)
+	@Column(name = "row_count", nullable = false)
 	private Long rowCount;
 
 	@Column(name = "mine_count", nullable = false)

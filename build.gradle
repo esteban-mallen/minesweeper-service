@@ -12,6 +12,8 @@ ext {
     springBootVersion = '2.2.5.RELEASE'
     testNGVersion = '7.1.0'
     lombokVersion = '1.18.12'
+    flywayVersion = '6.2.4'
+    mySQLConnectorVersion = '8.0.19'
 }
 
 repositories {
@@ -33,6 +35,12 @@ dependencies {
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: "${lombokVersion}"
     compileOnly group: 'org.projectlombok', name: 'lombok', version: "${lombokVersion}"
     testCompileOnly group: 'org.projectlombok', name: 'lombok', version: "${lombokVersion}"
+
+    //Flyway
+    compile group: 'org.flywaydb', name: 'flyway-core', version: "${flywayVersion}"
+
+    //MySQL
+    compile group: 'mysql', name: 'mysql-connector-java', version: "${mySQLConnectorVersion}"
 
     testCompile group: 'org.testng', name: 'testng', version: "$testNGVersion"
     testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: "${springBootVersion}"
