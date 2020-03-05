@@ -11,6 +11,7 @@ targetCompatibility = JavaVersion.VERSION_11
 ext {
     springBootVersion = '2.2.5.RELEASE'
     testNGVersion = '7.1.0'
+    lombokVersion = '1.18.12'
 }
 
 repositories {
@@ -26,6 +27,12 @@ dependencies {
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: "${springBootVersion}"
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-logging', version: "${springBootVersion}"
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: "${springBootVersion}"
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: "${springBootVersion}"
+
+    //Lombok
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: "${lombokVersion}"
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: "${lombokVersion}"
+    testCompileOnly group: 'org.projectlombok', name: 'lombok', version: "${lombokVersion}"
 
     testCompile group: 'org.testng', name: 'testng', version: "$testNGVersion"
     testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: "${springBootVersion}"
